@@ -2,8 +2,7 @@ const BN = require('bignumber.js');
 const MovingTriggerPrice = require('@bccq/quant-calculator').MovingTriggerPrice;
 const FuturesOkex = require('@bccq/wss-futures').FuturesOkex;
 
-const { COIN_NAME, DATE, LEVEL, FEE, configOkex, } = require('./quant_config');
-const { slippage, leverage, fee, decimal, closeRatio } = require('./strategy_config');
+const { COIN_NAME, DATE, LEVEL, FEE, configHuobi, configOkex, slippage, leverage, decimal, closeRatio } = require('./strategy_config');
 
 let okPrices = { ask: null, bid: null };
 let mtp = null;
@@ -34,7 +33,7 @@ setInterval(() => {
     longshort = Math.random() > 0.5;
     price = longshort ? okPrice[0] : okPrice[1];
 
-    mtp = new MovingTriggerPrice(longshort, leverage, fee, closeRatio, slippage, decimal);
+    mtp = new MovingTriggerPrice(longshort, leverage, FEE, closeRatio, slippage, decimal);
     mtp.addCont(cont, price);
   }
   mtp.onPriceChange(middlePrice);
