@@ -1,0 +1,4 @@
+.logs
+node_modules
+quant_config.js
+strategy_config.js

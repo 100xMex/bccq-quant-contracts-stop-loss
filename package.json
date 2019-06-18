@@ -1,0 +1,16 @@
+{
+  "name": "quant-contracts-stop-loss",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "JustinChow <zhou78620051@126.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@bccq/quant-calculator": "^1.0.2",
+    "@bccq/wss-futures": "^1.0.2",
+    "bignumber.js": "^9.0.0"
+  }
+}
