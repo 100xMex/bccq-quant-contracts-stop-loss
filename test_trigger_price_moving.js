@@ -8,7 +8,7 @@ let okPrices = { ask: null, bid: null };
 let mtp = null;
 let longshort = null;
 let price = null;
-let cont = 100;
+let cont = 1;
 
 const syncOkex = () => {
   const futuresInstrumentId = `${COIN_NAME}-USD-${DATE.OKEx}`;
@@ -26,16 +26,29 @@ syncOkex();
 setInterval(() => {
   if (!okPrices.ask || !okPrices.bid) return;
 
-  const okPrice = [new BN(okPrices.ask[0]), new BN(okPrices.bid[0])];
-  const middlePrice = okPrice[0].plus(okPrice[1]).div(2);
+  const ask1 = parseFloat(okPrices.ask[0]); // 盘口买卖价格
+  const bid1 = parseFloat(okPrices.bid[0]);
+  const middlePrice = (ask1 + bid1) / 2; // 盘口中间价
 
   if (!mtp) {
-    longshort = Math.random() > 0.5;
-    price = longshort ? okPrice[0] : okPrice[1];
+    longshort = Math.random() > 0.5; // 随机一个买卖方向测试
+    price = longshort ? ask1 : bid1; // 做多以买一价开仓, 做空以买一价开仓.
 
     mtp = new MovingTriggerPrice(longshort, leverage, FEE, closeRatio, slippage, decimal);
-    mtp.addCont(cont, price);
+
+    // TODO 调用开仓记录
+    console.log('开[%s]仓, 价格 %s, 张数 %s', longshort ? '开' : '空', price, cont);
+    mtp.addCont(cont, price); // 记录开仓
+
+    mtp.on('onCloseLong', () => {
+      // TODO 调用平多接口
+      console.log('平[%s]仓, 价格 %s, 张数 %s', longshort ? '开' : '空', mtp.currPrice, cont);
+    });
+    mtp.on('onCloseShort', () => {
+      // TODO 调用平空接口
+      console.log('平[%s]仓, 价格 %s, 张数 %s', longshort ? '开' : '空', mtp.currPrice, cont);
+    });
   }
-  mtp.onPriceChange(middlePrice);
-  mtp.calcProfitRatio();
+  mtp.onPriceChange(middlePrice); // 价格变动后, 计算
+  mtp.calcProfitRatio(); // 计算收益率
 }, 1e3);
