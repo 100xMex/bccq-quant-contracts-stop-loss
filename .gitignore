@@ -1,4 +1,4 @@
-.logs
+logs
 node_modules
-quant_config.js
-strategy_config.js
+config/quant_config.js
+config/strategy_config.js

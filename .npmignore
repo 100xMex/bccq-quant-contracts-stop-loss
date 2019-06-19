@@ -1,5 +1,6 @@
-.logs
+logs
 node_modules
+config/quant_config.js
+config/strategy_config.js
+
 publish.sh
-quant_config.js
-strategy_config.js
