@@ -37,7 +37,7 @@ setInterval(() => {
     mtp = new MovingTriggerPrice(longshort, leverage, FEE, closeRatio, slippage, decimal);
 
     // TODO 调用开仓记录
-    console.log('开[%s]仓, 价格 %s, 张数 %s', longshort ? '开' : '空', price, cont);
+    console.log('开[%s]仓, 价格 %s, 张数 %s', longshort ? '多' : '空', price, cont);
     mtp.addCont(cont, price); // 记录开仓
 
     mtp.on('onContChange', () => {
@@ -54,14 +54,14 @@ setInterval(() => {
 
     mtp.on('onCloseLong', () => {
       // TODO 调用平多接口
-      console.log('平[%s]仓, 价格 %s, 张数 %s', longshort ? '开' : '空', mtp.currPrice, cont);
+      console.log('平[%s]仓, 价格 %s, 张数 %s', longshort ? '多' : '空', mtp.currPrice, cont);
     });
     mtp.on('onCloseShort', () => {
       // TODO 调用平空接口
-      console.log('平[%s]仓, 价格 %s, 张数 %s', longshort ? '开' : '空', mtp.currPrice, cont);
+      console.log('平[%s]仓, 价格 %s, 张数 %s', longshort ? '多' : '空', mtp.currPrice, cont);
     });
   }
 
   mtp.onPriceChange(middlePrice); // 价格变动后, 计算
-  mtp.calcProfitRatio(); // 计算收益率
+  // mtp.calcProfitRatio(); // 计算收益率
 }, 1e3);
