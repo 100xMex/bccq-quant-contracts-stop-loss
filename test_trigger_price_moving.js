@@ -40,6 +40,18 @@ setInterval(() => {
     console.log('开[%s]仓, 价格 %s, 张数 %s', longshort ? '开' : '空', price, cont);
     mtp.addCont(cont, price); // 记录开仓
 
+    mtp.on('onContChange', () => {
+      console.log('cont changed, %s', mtp.holdCont);
+    });
+
+    mtp.on('onPriceChange', () => {
+      console.log('price changed %s', mtp.currPrice);
+    });
+
+    mtp.on('onClosePriceMove', () => {
+      console.log('price changed: close %s, trigger %s, move %s', mtp.closePrice, mtp.triggerPrice, mtp.movePrice);
+    });
+
     mtp.on('onCloseLong', () => {
       // TODO 调用平多接口
       console.log('平[%s]仓, 价格 %s, 张数 %s', longshort ? '开' : '空', mtp.currPrice, cont);
@@ -49,6 +61,7 @@ setInterval(() => {
       console.log('平[%s]仓, 价格 %s, 张数 %s', longshort ? '开' : '空', mtp.currPrice, cont);
     });
   }
+
   mtp.onPriceChange(middlePrice); // 价格变动后, 计算
   mtp.calcProfitRatio(); // 计算收益率
 }, 1e3);
