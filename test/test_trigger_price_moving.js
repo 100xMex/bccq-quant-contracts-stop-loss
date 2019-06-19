@@ -2,7 +2,7 @@ const BN = require('bignumber.js');
 const MovingTriggerPrice = require('@bccq/quant-calculator').MovingTriggerPrice;
 const FuturesOkex = require('@bccq/wss-futures').FuturesOkex;
 
-const { COIN_NAME, DATE, LEVEL, FEE, configHuobi, configOkex, slippage, leverage, decimal, closeRatio } = require('./strategy_config');
+const { COIN_NAME, DATE, LEVEL, FEE, configHuobi, configOkex, slippage, leverage, decimal, closeRatio } = require('../config/strategy_config');
 
 let okPrices = { ask: null, bid: null };
 let mtp = null;
