@@ -1,0 +1,71 @@
+extends layout
+
+block content
+  h1= title
+  // p= JSON.stringify(info)
+
+  h2= '当前仓位'
+  table
+    tr
+      td= '多空'
+      td= '杠杆倍数'
+      td= '手续费率'
+      td= '止损亏损比例'
+      td= '下单滑点'
+      td= '精度'
+      td= '持仓量'
+      td= '持仓价格'
+      td= '当前价格'
+      td= '当前上下轨'
+      td= '移仓价格'
+      td= '触发价格'
+      td= '下单价格'
+      td= '收益率'
+
+    - if (info.holdCont !== 0) {
+    tr
+      td= info.longshort ? '多' : '空'
+      td= info.leverage
+      td= info.fee
+      td= info.radio
+      td= info.slippage
+      td= info.decimal
+      td= info.holdCont
+      td= info.holdCont
+      td= info.currPrice
+      td= '[' + info.upperPrice + ' ' + info.lowerPrice + ']'
+      td= info.movePrice
+      td= info.triggerPrice
+      td= info.closePrice
+      td= info.pnlRatio + '%'
+    - }
+
+  h2= '开仓工具'
+  form(action="/place_open" method='get' target="_blank")
+    span= '下单方向'
+    select(name="longshort" id="open_longshort")
+      option(value="1") 做多
+      option(value="-1") 做空
+    p
+    span= '张数'
+    input(type="text", name="cont" id="open_cont")
+    p
+    span= '价格'
+    input(type="text", name="price" id="open_price")
+    p
+    input(type="submit", value="下单")
+
+  h2= '平仓工具'
+  form(action="/place_close" method='get' target="_blank")
+    span= '下单方向'
+    select(name="longshort" id="close_longshort")
+      option(value="1") 做多
+      option(value="-1") 做空
+    p
+    span= '张数'
+    input(type="text", name="cont" id="close_cont")
+    p
+    span= '价格'
+    input(type="text", name="price" id="close_price")
+    p
+    input(type="submit", value="下单")

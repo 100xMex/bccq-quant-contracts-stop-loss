@@ -8,6 +8,12 @@ router.get('/', function (req, res, next) {
   res.end();
 });
 
+router.get('/place_view', (req, res, next) => {
+  const trigger = Trigger.getInstance();
+
+  res.render('order', { title: '开仓下单工具', info: trigger.loadMtp().toJson() });
+});
+
 router.get('/place_open', (req, res, next) => {
   const longshort = req.query.longshort ? 1 : 0; // 多空
   const price = parseFloat(req.query.price); // 价格
