@@ -6,14 +6,31 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var onExit = require('signal-exit');
 
 var app = express();
-const exchange = require('./service/exchange');
-exchange.start();
+
+const Exchange = require('./service/exchange');
+const SyncLoader = require('./service/datastore').SyncLoader;
+
+// Moving Trigger 封装
 const trigger = require('./service/trigger');
+// 交易所数据+接口
+const exchange = Exchange.getFutures();
+// 数据持久化
+const syncTrigger = new SyncLoader('trigger');
+
+onExit((code, signal) => {
+  const triggerInfo = trigger.loadMtp().toJson();
+  syncTrigger.write(triggerInfo);
+  console.log('process exited signal %s code %s!', signal, code);
+});
+
+const triggerInfo = syncTrigger.read();
+if (triggerInfo) trigger.restoreMtp(triggerInfo);
 
 setInterval(() => {
-  const prices = exchange.getPrices();
+  const prices = Exchange.getPrices();
   trigger.updatePrice(prices);
 }, 5e2);
 

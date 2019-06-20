@@ -5,28 +5,13 @@ const { COIN_NAME, DATE, LEVEL, FEE, configHuobi, configOkex, slippage, leverage
 
 let mtp = null;
 
-// 开仓
-const openOrderRequest = () => { };
-// 平仓
-const closeOrderRequest = () => { };
-// 设置止盈止损单
-const openTriggerRequest = () => { };
-// 取消止盈止损单
-const closeTriggerRequest = () => { };
-
-const createMtp = (longshort, price, cont) => {
-  mtp = new MovingTriggerPrice(longshort, leverage, FEE, closeRatio, slippage, decimal);
-
-  // TODO 调用开仓记录, 成功返回后以返回价格, 张数向下继续
-  console.log('开[%s]仓, 价格 %s, 张数 %s', longshort ? '多' : '空', price, cont);
-  mtp.addCont(cont, price); // 记录开仓
-
+const __addListener = (mtp) => {
   mtp.on('onPriceChange', () => {
     console.log(
       'price changed 当前价 %s, 做[%s] %s 张, 持仓价 %s, 平仓价 %s=>%s, 当前[%s] %s, 移仓价 %s, 未实现收益率 %s',
-      mtp.currPrice, longshort > 0 ? '多' : '空',
+      mtp.currPrice, mtp.longshort > 0 ? '多' : '空',
       mtp.holdCont, mtp.holdPrice, mtp.triggerPrice, mtp.closePrice,
-      longshort > 0 ? '下轨' : '上轨', longshort > 0 ? mtp.lowerPrice : mtp.upperPrice,
+      mtp.longshort > 0 ? '下轨' : '上轨', mtp.longshort > 0 ? mtp.lowerPrice : mtp.upperPrice,
       mtp.movePrice, mtp.pnlRatio,
     );
   });
@@ -48,20 +33,33 @@ const createMtp = (longshort, price, cont) => {
     // TODO 调用平多接口
     console.log(
       'close long: 平[%s]仓, 当前价 %s, 触发价 %s, 平仓价 %s, 张数 %s, 盈亏 %s',
-      longshort ? '多' : '空',
-      mtp.currPrice, mtp.triggerPrice, mtp.closePrice, cont, mtp.pnlRatio,
+      mtp.longshort ? '多' : '空',
+      mtp.currPrice, mtp.triggerPrice, mtp.closePrice, mtp.holdCont, mtp.pnlRatio,
     );
   });
+
   mtp.on('onCloseShort', () => {
     // TODO 调用平空接口
     console.log(
       'close long: 平[%s]仓, 当前价 %s, 触发价 %s, 平仓价 %s, 张数 %s, 盈亏 %s',
-      longshort ? '多' : '空',
-      mtp.currPrice, mtp.triggerPrice, mtp.closePrice, cont, mtp.pnlRatio,
+      mtp.longshort ? '多' : '空',
+      mtp.currPrice, mtp.triggerPrice, mtp.closePrice, mtp.holdCont, mtp.pnlRatio,
     );
   });
 
   return mtp;
+}
+
+const createMtp = () => {
+  mtp = new MovingTriggerPrice().init(0, leverage, FEE, closeRatio, slippage, decimal);
+
+  return __addListener(mtp);
+}
+
+const restoreMtp = (json) => {
+  mtp = new MovingTriggerPrice().fromJson(json);
+
+  return __addListener(mtp);
 }
 
 const updatePrice = (okPrices) => {
@@ -77,20 +75,25 @@ const updatePrice = (okPrices) => {
 
 const addCont = (longshort, price, cont) => {
   if (!mtp) {
-    mtp = createMtp(longshort, price, cont);
-    return true;
+    mtp = createMtp();
   }
 
-  if (mtp.cont === 0) {
+  if (mtp.holdCont === 0) {
     mtp.longshort = longshort;
+    // TODO 调用开仓记录, 成功返回后以返回价格, 张数向下继续
+    console.log('开[%s]仓, 价格 %s, 张数 %s', longshort ? '多' : '空', price, cont);
     mtp.addCont(cont, price);
   }
   else if (mtp.longshort === longshort) {
+    // TODO 调用开仓记录, 成功返回后以返回价格, 张数向下继续
+    console.log('开[%s]仓, 价格 %s, 张数 %s', longshort ? '多' : '空', price, cont);
     mtp.addCont(cont, price);
   }
   else {
     console.log('与当前持仓方向不一致.');
   }
+
+  return true;
 }
 
 const subCont = (longshort, price, cont) => {
@@ -98,10 +101,15 @@ const subCont = (longshort, price, cont) => {
 
   if (mtp.longshort !== longshort || mtp.holdCount < cont) return;
 
+  // TODO 调用平仓记录, 成功返回后以返回价格, 张数向下继续
+  console.log('平[%s]仓, 价格 %s, 张数 %s', longshort ? '多' : '空', price, cont);
   mtp.subCont(cont, price);
 }
 
 module.exports = {
+  createMtp,
+  restoreMtp,
+  loadMtp: () => mtp,
   addCont,
   subCont,
   updatePrice,

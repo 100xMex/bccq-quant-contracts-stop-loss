@@ -17,3 +17,5 @@ BugList:
 > 2. 以实时价格计算上/下轨, 不与 movePrice 比较, 直接更新 triggerPrice
 > 3. 以实时价格不计算上下轨, 直接与 movePrice 比较, 更新 triggerPrice
 
+7. 界面操作
+8. 程序出买卖信号(取代随机买卖方向)
