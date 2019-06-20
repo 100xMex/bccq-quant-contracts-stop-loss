@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-const trigger = require('../service/trigger');
+const Trigger = require('../service/trigger');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -18,6 +18,7 @@ router.get('/place_open', (req, res, next) => {
   const username = req.headers.username;
   const nickname = req.headers.nickname;
 
+  const trigger = Trigger.getInstance();
   trigger.addCont(longshort, price, cont);
 
   res.json({ params: req.query });
@@ -33,6 +34,7 @@ router.get('/place_close', (req, res, next) => {
   const username = req.headers.username;
   const nickname = req.headers.nickname;
 
+  const trigger = Trigger.getInstance();
   trigger.subCont(longshort, price, cont);
 
   res.json({ params: req.query });

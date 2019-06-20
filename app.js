@@ -12,9 +12,10 @@ var app = express();
 
 const Exchange = require('./service/exchange');
 const SyncLoader = require('./service/datastore').SyncLoader;
+const MovingTrigger = require('./service/trigger');
 
 // Moving Trigger 封装
-const trigger = require('./service/trigger');
+const trigger = MovingTrigger.getInstance();
 // 交易所数据+接口
 const exchange = Exchange.getFutures();
 // 数据持久化
@@ -23,11 +24,20 @@ const syncTrigger = new SyncLoader('trigger');
 onExit((code, signal) => {
   const triggerInfo = trigger.loadMtp().toJson();
   syncTrigger.write(triggerInfo);
-  console.log('process exited signal %s code %s!', signal, code);
+  console.log('process exited signal %s code %s! 持久化数据 %j', signal, code, triggerInfo);
+});
+
+trigger.on('persistence', (reason) => {
+  const triggerInfo = trigger.loadMtp().toJson();
+  syncTrigger.write(triggerInfo);
+  console.log('持久化 trigger %s 数据 %j', reason, triggerInfo);
 });
 
 const triggerInfo = syncTrigger.read();
-if (triggerInfo) trigger.restoreMtp(triggerInfo);
+if (triggerInfo) {
+  trigger.restoreMtp(triggerInfo);
+  console.log('从持久化恢复 trigger 数据 %j', triggerInfo);
+}
 
 setInterval(() => {
   const prices = Exchange.getPrices();
