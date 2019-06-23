@@ -22,10 +22,10 @@ class MovingTrigger extends EventEmitter {
 
   __addExListener() {
     this.exchange.getExchange().on('position', (position) => {
-      console.log('recv position info %j', position);
+      // console.log('recv position info %j', position);
     });
     this.exchange.getExchange().on('account', (account) => {
-      console.log('recv account info %j', account);
+      // console.log('recv account info %j', account);
     });
     this.exchange.getExchange().on('order', (order) => {
       // console.log('recv order info %j', order);
