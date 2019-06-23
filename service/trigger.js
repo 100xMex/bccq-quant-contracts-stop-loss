@@ -6,10 +6,11 @@ const { COIN_NAME, DATE, LEVEL, FEE, configHuobi, configOkex, slippage, leverage
 let mt = null;
 
 class MovingTrigger extends EventEmitter {
-  constructor() {
+  constructor(exchange) {
     super();
 
     this.mtp = null;
+    this.exchange = exchange;
   }
 
   __addListener() {

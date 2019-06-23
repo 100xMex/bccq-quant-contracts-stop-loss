@@ -31,6 +31,10 @@ class FuturesManager {
     return this;
   }
 
+  getPrices() {
+    return this.okPrices;
+  }
+
   // 杠杆
   async getLeverage() {
     const currLeverage = await this.futuresOkex.authClient.futures().getLeverage(COIN_NAME);
@@ -283,14 +287,6 @@ module.exports = {
     return futuresIns;
   }
 }
-
-// module.exports = {
-//   getFutures: () => futuresOkex ? futuresOkex : startService(),
-//   getPrices: () => okPrices,
-//   openOrder, closeOrder, openTrigger, closeTrigger, loadPos, loadOrders, loadTrigger
-// };
-
-
 
 // 获取仓位, 平仓接口
 // Async.waterfall([

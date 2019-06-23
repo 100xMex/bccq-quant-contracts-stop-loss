@@ -17,7 +17,7 @@ const MovingTrigger = require('./service/trigger');
 // Moving Trigger 封装
 const trigger = MovingTrigger.getInstance();
 // 交易所数据+接口
-const exchange = Exchange.getFutures();
+const exchange = Exchange.getInstance().init();
 // 数据持久化
 const syncTrigger = new SyncLoader('trigger');
 
@@ -40,7 +40,7 @@ if (triggerInfo) {
 }
 
 setInterval(() => {
-  const prices = Exchange.getPrices();
+  const prices = exchange.getPrices();
   trigger.updatePrice(prices);
 }, 5e2);
 
