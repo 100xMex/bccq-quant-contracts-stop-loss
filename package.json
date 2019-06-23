@@ -10,7 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "@bccq/quant-calculator": "^1.0.11",
-    "@bccq/wss-futures": "^1.0.2",
+    "@bccq/wss-futures": "^1.0.4",
     "async": "^3.0.1",
     "bignumber.js": "^9.0.0",
     "cookie-parser": "~1.4.3",

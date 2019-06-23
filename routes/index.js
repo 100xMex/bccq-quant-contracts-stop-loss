@@ -15,7 +15,7 @@ router.get('/place_view', (req, res, next) => {
 });
 
 router.get('/place_open', (req, res, next) => {
-  const longshort = req.query.longshort ? 1 : 0; // 多空
+  const longshort = parseInt(req.query.longshort, 10) > 0 ? 1 : 0; // 多空
   const price = parseFloat(req.query.price); // 价格
   const cont = parseInt(req.query.cont, 10); // 张数
 
@@ -25,13 +25,16 @@ router.get('/place_open', (req, res, next) => {
   const nickname = req.headers.nickname;
 
   const trigger = Trigger.getInstance();
-  trigger.addCont(longshort, price, cont);
-
-  res.json({ params: req.query });
+  trigger.addCont(longshort, cont, price).then(orderId => {
+    res.json({
+      params: req.query,
+      orderId
+    });
+  });
 });
 
 router.get('/place_close', (req, res, next) => {
-  const longshort = req.query.longshort ? 1 : 0; // 多空
+  const longshort = parseInt(req.query.longshort, 10) > 0 ? 1 : 0; // 多空
   const price = parseFloat(req.query.price); // 价格
   const cont = parseInt(req.query.cont, 10); // 张数
 
@@ -41,9 +44,12 @@ router.get('/place_close', (req, res, next) => {
   const nickname = req.headers.nickname;
 
   const trigger = Trigger.getInstance();
-  trigger.subCont(longshort, price, cont);
-
-  res.json({ params: req.query });
+  trigger.subCont(longshort, cont, price).then(orderId => {
+    res.json({
+      params: req.query,
+      orderId
+    });
+  });
 });
 
 

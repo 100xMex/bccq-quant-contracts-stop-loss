@@ -14,10 +14,10 @@ const Exchange = require('./service/exchange');
 const SyncLoader = require('./service/datastore').SyncLoader;
 const MovingTrigger = require('./service/trigger');
 
-// Moving Trigger 封装
-const trigger = MovingTrigger.getInstance();
 // 交易所数据+接口
 const exchange = Exchange.getInstance().init();
+// Moving Trigger 封装
+const trigger = MovingTrigger.getInstance().init(exchange);
 // 数据持久化
 const syncTrigger = new SyncLoader('trigger');
 

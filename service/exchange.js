@@ -1,12 +1,15 @@
 const Async = require('async');
+const EventEmitter = require('events').EventEmitter;
 const FuturesOkex = require('@bccq/wss-futures').FuturesOkex;
 
 const { COIN_NAME, DATE, LEVEL, FEE, configHuobi, configOkex, slippage, leverage, decimal, closeRatio } = require('../config/strategy_config');
 
 let futuresIns = null;
 
-class FuturesManager {
+class FuturesManager extends EventEmitter {
   constructor() {
+    super();
+
     this.futuresOkex = null;
 
     this.coinName = COIN_NAME;
@@ -29,6 +32,10 @@ class FuturesManager {
     });
 
     return this;
+  }
+
+  getExchange() {
+    return this.futuresOkex;
   }
 
   getPrices() {
@@ -119,7 +126,7 @@ class FuturesManager {
     const params = {
       instrument_id: this.futuresInstrumentId,
       type: longshort > 0 ? 1 : 2, // 1:开多 2:开空
-      order_type: 0, // 0：普通委托（order type不填或填0都是普通委托） 1：只做Maker（Post only） 2：全部成交或立即取消（FOK） 3：立即成交并取消剩余（IOC）
+      order_type: 3, // 0：普通委托（order type不填或填0都是普通委托） 1：只做Maker（Post only） 2：全部成交或立即取消（FOK） 3：立即成交并取消剩余（IOC）
       price,
       size: cont,
       leverage: this.leverage
@@ -134,7 +141,7 @@ class FuturesManager {
     const params = {
       instrument_id: this.futuresInstrumentId,
       type: longshort > 0 ? 3 : 4, // 3:平多 4:平空
-      order_type: 0, // 0：普通委托（order type不填或填0都是普通委托） 1：只做Maker（Post only） 2：全部成交或立即取消（FOK） 3：立即成交并取消剩余（IOC）
+      order_type: 3, // 0：普通委托（order type不填或填0都是普通委托） 1：只做Maker（Post only） 2：全部成交或立即取消（FOK） 3：立即成交并取消剩余（IOC）
       price,
       size: cont,
       leverage: this.leverage
@@ -196,8 +203,8 @@ class FuturesManager {
     // "3":下单中,
     // "4":撤单中,
 
-    // "6":未完成(等待成交+部分成交)
-    // "7":已完成(撤单成功+完全成交)
+    // "6":未完成(0等待成交+1部分成交)
+    // "7":已完成(-1撤单成功+2完全成交)
 
     const params = { state, limit, from, to };
     const info = await this.futuresOkex.authClient.futures().getOrders(this.futuresInstrumentId, params);
