@@ -22,10 +22,10 @@ class MovingTrigger extends EventEmitter {
 
   __addExListener() {
     this.exchange.getExchange().on('position', (position) => {
-      // console.log('recv position info %j', position);
+      console.log('recv position info %j', position);
     });
     this.exchange.getExchange().on('account', (account) => {
-      // console.log('recv account info %j', account);
+      console.log('recv account info %j', account);
     });
     this.exchange.getExchange().on('order', (order) => {
       // console.log('recv order info %j', order);
@@ -93,9 +93,25 @@ class MovingTrigger extends EventEmitter {
       }
 
       console.log('%s %s张 均价 %s ', type, order.filled_qty, order.price_avg);
-
-
     });
+
+    this.exchange.loadPosition()
+      .then(data => {
+        const longCont = parseInt(data.long_qty, 10);
+        const shortCont = parseInt(data.short_qty, 10);
+        if (longCont > 0 && shortCont > 0) {
+          throw (new Error('Not Support Hold Long %s And Short %s', data.long_qty, data.short_qty));
+        }
+
+        const longshort = longCont > 0 ? 1 : (shortCont > 0 ? -1 : 0);
+        const holdCont = longshort > 0 ? longCont : shortCont;
+        const holdPrice = longshort > 0 ? parseFloat(data.long_avg_cost) : parseFloat(data.short_avg_cost);
+
+        this.mtp.async(longshort, holdCont, holdPrice);
+      })
+      .catch(err => {
+        console.error('load position failed %s', err.message);
+      });
 
     return this.exchange;
   }
@@ -113,13 +129,11 @@ class MovingTrigger extends EventEmitter {
     });
 
     this.mtp.on('onContChange', () => {
-      // TODO 写入本地/数据库
       console.log('cont changed, 仓位 %s, 均价 %s', this.mtp.holdCont, this.mtp.holdPrice);
       this.emit('persistence', 'cont changed');
     });
 
     this.mtp.on('onClosePriceMove', () => {
-      // TODO 写入本地/数据库
       console.log(
         'price moved: 平仓价 %s, 触发价 %s, 移仓价 %s',
         this.mtp.closePrice, this.mtp.triggerPrice, this.mtp.movePrice
@@ -127,24 +141,28 @@ class MovingTrigger extends EventEmitter {
       this.emit('persistence', 'price move');
     });
 
-    this.mtp.on('onCloseLong', () => {
-      // TODO 调用平多接口
+    this.mtp.on('onCloseLong', (cont, price) => {
       console.log(
         'close long: 平[%s]仓, 当前价 %s, 触发价 %s, 平仓价 %s, 张数 %s, 盈亏 %s',
         this.mtp.longshort ? '多' : '空',
         this.mtp.currPrice, this.mtp.triggerPrice, this.mtp.closePrice, this.mtp.holdCont, this.mtp.pnlRatio,
       );
-      this.emit('persistence', 'close long');
+      this.subCont(1, cont, price).catch(err => {
+        console.error('close long failed with %s', err.message);
+      });
+      // this.emit('persistence', 'close long');
     });
 
-    this.mtp.on('onCloseShort', () => {
-      // TODO 调用平空接口
+    this.mtp.on('onCloseShort', (cont, price) => {
       console.log(
         'close long: 平[%s]仓, 当前价 %s, 触发价 %s, 平仓价 %s, 张数 %s, 盈亏 %s',
         this.mtp.longshort ? '多' : '空',
         this.mtp.currPrice, this.mtp.triggerPrice, this.mtp.closePrice, this.mtp.holdCont, this.mtp.pnlRatio,
       );
-      this.emit('persistence', 'close short');
+      this.subCont(-1, cont, price).catch(err => {
+        console.error('close short failed with %s', err.message);
+      });
+      // this.emit('persistence', 'close short');
     });
 
     return this.mtp;

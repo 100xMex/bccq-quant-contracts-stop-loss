@@ -48,6 +48,8 @@ setInterval(() => {
   const prices = exchange.getPrices();
   if (Date.now() - prices.updated > 5e3) {
     console.log('价格记录已经过期 %j', prices);
+    if (prices.updated !== 0 && Date.now() - prices.updated > 60e3) process.exit();
+
     return;
   }
 
