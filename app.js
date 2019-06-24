@@ -14,12 +14,21 @@ const Exchange = require('./service/exchange');
 const SyncLoader = require('./service/datastore').SyncLoader;
 const MovingTrigger = require('./service/trigger');
 
-// 交易所数据+接口
-const exchange = Exchange.getInstance().init();
-// Moving Trigger 封装
-const trigger = MovingTrigger.getInstance().init(exchange);
 // 数据持久化
 const syncTrigger = new SyncLoader('trigger');
+
+// 交易所数据+接口
+const exchange = Exchange.getInstance().init();
+
+// Moving Trigger 封装
+const trigger = MovingTrigger.getInstance();
+// 从数据恢复
+const triggerInfo = syncTrigger.read();
+if (triggerInfo) {
+  trigger.restoreMtp(triggerInfo);
+  console.log('从持久化恢复 trigger 数据 %j', triggerInfo);
+}
+trigger.init(exchange);
 
 onExit((code, signal) => {
   const triggerInfo = trigger.loadMtp().toJson();
@@ -37,12 +46,6 @@ trigger.on('persistence', (reason) => {
   syncTrigger.write(triggerInfo);
   console.log('持久化 trigger %s 数据 %j', reason, triggerInfo);
 });
-
-const triggerInfo = syncTrigger.read();
-if (triggerInfo) {
-  trigger.restoreMtp(triggerInfo);
-  console.log('从持久化恢复 trigger 数据 %j', triggerInfo);
-}
 
 setInterval(() => {
   const prices = exchange.getPrices();

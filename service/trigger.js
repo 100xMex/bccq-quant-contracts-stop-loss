@@ -107,6 +107,9 @@ class MovingTrigger extends EventEmitter {
         const holdCont = longshort > 0 ? longCont : shortCont;
         const holdPrice = longshort > 0 ? parseFloat(data.long_avg_cost) : parseFloat(data.short_avg_cost);
 
+        console.log('从远程服务器恢复数据 %j', { longshort, holdCont, holdPrice });
+
+        if (holdCont === 0) return this.reset();
         this.mtp.async(longshort, holdCont, holdPrice);
       })
       .catch(err => {
@@ -179,9 +182,8 @@ class MovingTrigger extends EventEmitter {
 
   restoreMtp(json) {
     this.mtp = new MovingTriggerPrice().fromJson(json);
-    this.__addMtpListener();
-
     if (this.mtp.holdCont === 0) this.reset();
+    this.__addMtpListener();
 
     return this.mtp;
   }
@@ -228,18 +230,16 @@ class MovingTrigger extends EventEmitter {
     // TODO 调用平仓记录, 成功返回后以返回价格, 张数向下继续
     const orderId = await this.exchange.closeOrder(longshort, cont, price);
     console.log('Close OrderId %s', orderId);
-
-    if (this.mtp.holdCont === 0) this.reset();
   }
 
   onSubCont(longshort, cont, price) {
     console.log('平[%s]仓, 价格 %s, 张数 %s', longshort ? '多' : '空', price, cont);
     this.mtp.subCont(cont, price);
+
+    if (this.mtp.holdCont === 0) this.reset();
   }
 
   reset() {
-    if (this.mtp.holdCont !== 0) return;
-
     this.mtp = this.createMtp();
     this.emit('persistence', 'reset');
   }
