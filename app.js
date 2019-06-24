@@ -27,6 +27,11 @@ onExit((code, signal) => {
   console.log('process exited signal %s code %s! 持久化数据 %j', signal, code, triggerInfo);
 });
 
+exchange.on('close', () => {
+  console.log('Exchange WebSocket Closed');
+  process.exit();
+});
+
 trigger.on('persistence', (reason) => {
   const triggerInfo = trigger.loadMtp().toJson();
   syncTrigger.write(triggerInfo);
@@ -41,6 +46,11 @@ if (triggerInfo) {
 
 setInterval(() => {
   const prices = exchange.getPrices();
+  if (Date.now() - prices.updated > 5e3) {
+    console.log('价格记录已经过期 %j', prices);
+    return;
+  }
+
   trigger.updatePrice(prices);
 }, 5e2);
 

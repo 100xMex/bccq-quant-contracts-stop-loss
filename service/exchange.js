@@ -31,6 +31,10 @@ class FuturesManager extends EventEmitter {
       this.okPrices.updated = Date.now();
     });
 
+    this.futuresOkex.on('close', () => {
+      this.emit('close');
+    });
+
     return this;
   }
 
