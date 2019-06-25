@@ -45,6 +45,11 @@ class MovingTrigger extends EventEmitter {
         return;
       }
 
+      if (order.status === "1") {
+        console.log('下单部分成交, %j', order);
+        return;
+      }
+
       if (order.status === "-1") {
         console.log('下单部分成交, 剩余撤单 %j', order);
       }
@@ -147,8 +152,8 @@ class MovingTrigger extends EventEmitter {
     this.mtp.on('onCloseLong', (cont, price) => {
       console.log(
         'close long: 平[%s]仓, 当前价 %s, 触发价 %s, 平仓价 %s, 张数 %s, 盈亏 %s',
-        this.mtp.longshort ? '多' : '空',
-        this.mtp.currPrice, this.mtp.triggerPrice, this.mtp.closePrice, this.mtp.holdCont, this.mtp.pnlRatio,
+        this.mtp.longshort ? '多' : '空', this.mtp.currPrice, this.mtp.triggerPrice,
+        this.mtp.closePrice, this.mtp.holdCont, this.mtp.pnlRatio,
       );
       this.subCont(1, cont, price).catch(err => {
         console.error('close long failed with %s', err.message);
@@ -159,8 +164,8 @@ class MovingTrigger extends EventEmitter {
     this.mtp.on('onCloseShort', (cont, price) => {
       console.log(
         'close long: 平[%s]仓, 当前价 %s, 触发价 %s, 平仓价 %s, 张数 %s, 盈亏 %s',
-        this.mtp.longshort ? '多' : '空',
-        this.mtp.currPrice, this.mtp.triggerPrice, this.mtp.closePrice, this.mtp.holdCont, this.mtp.pnlRatio,
+        this.mtp.longshort ? '多' : '空', this.mtp.currPrice, this.mtp.triggerPrice,
+        this.mtp.closePrice, this.mtp.holdCont, this.mtp.pnlRatio,
       );
       this.subCont(-1, cont, price).catch(err => {
         console.error('close short failed with %s', err.message);

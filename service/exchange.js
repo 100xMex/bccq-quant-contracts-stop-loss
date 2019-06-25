@@ -199,6 +199,7 @@ class FuturesManager extends EventEmitter {
   }
   // 获取当前挂单
   async loadOrders(state, limit = 10, from = null, to = null) {
+    // state 状态含义
     // "-2":失败,
     // "-1":撤单成功,
     // "0":等待成交,
