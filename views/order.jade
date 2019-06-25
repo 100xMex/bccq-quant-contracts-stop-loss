@@ -22,7 +22,7 @@ block content
       td= '下单价格'
       td= '收益率'
 
-    - if (info.holdCont !== 0) {
+    - if (wssOk && info.holdCont !== 0) {
     tr
       td= info.longshort ? '多' : '空'
       td= info.leverage
@@ -69,3 +69,10 @@ block content
     input(type="text", name="price" id="close_price")
     p
     input(type="submit", value="下单")
+
+  script.
+    if (#{wssOk})
+      console.log('connection ok')
+    else
+      console.log('connection failed')
+

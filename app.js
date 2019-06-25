@@ -30,9 +30,21 @@ if (triggerInfo) {
 }
 trigger.init(exchange);
 
-onExit((code, signal) => {
-  const triggerInfo = trigger.loadMtp().toJson();
+const writeTriggerInfo = () => {
+  const triggerMtp = trigger.loadMtp();
+  if (!triggerMtp) {
+    console.log('持久化数据失败 未初始化 trigger');
+    return null;
+  }
+
+  const triggerInfo = triggerMtp.toJson();
   syncTrigger.write(triggerInfo);
+  return triggerInfo;
+};
+
+onExit((code, signal) => {
+  const triggerInfo = writeTriggerInfo();
+  if (!triggerInfo) return;
   console.log('process exited signal %s code %s! 持久化数据 %j', signal, code, triggerInfo);
 });
 
@@ -42,8 +54,8 @@ exchange.on('close', () => {
 });
 
 trigger.on('persistence', (reason) => {
-  const triggerInfo = trigger.loadMtp().toJson();
-  syncTrigger.write(triggerInfo);
+  const triggerInfo = writeTriggerInfo();
+  if (!triggerInfo) return;
   console.log('持久化 trigger %s 数据 %j', reason, triggerInfo);
 });
 

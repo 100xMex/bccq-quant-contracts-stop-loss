@@ -11,7 +11,13 @@ router.get('/', function (req, res, next) {
 router.get('/place_view', (req, res, next) => {
   const trigger = Trigger.getInstance();
 
-  res.render('order', { title: '开仓下单工具', info: trigger.loadMtp().toJson() });
+  const triggerMtp = trigger.loadMtp();
+
+  if (!triggerMtp) {
+    return res.render('order', { title: '开仓下单工具', wssOk: false, info: {}, });
+  }
+
+  res.render('order', { title: '开仓下单工具', wssOk: true, info: triggerMtp.toJson() });
 });
 
 router.get('/place_open', (req, res, next) => {
