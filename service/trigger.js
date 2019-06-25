@@ -152,7 +152,7 @@ class MovingTrigger extends EventEmitter {
     this.mtp.on('onCloseLong', (cont, price) => {
       console.log(
         'close long: 平[%s]仓, 当前价 %s, 触发价 %s, 平仓价 %s, 张数 %s, 盈亏 %s',
-        this.mtp.longshort ? '多' : '空', this.mtp.currPrice, this.mtp.triggerPrice,
+        this.mtp.longshort > 0 ? '多' : '空', this.mtp.currPrice, this.mtp.triggerPrice,
         this.mtp.closePrice, this.mtp.holdCont, this.mtp.pnlRatio,
       );
       this.subCont(1, cont, price).catch(err => {
@@ -163,8 +163,8 @@ class MovingTrigger extends EventEmitter {
 
     this.mtp.on('onCloseShort', (cont, price) => {
       console.log(
-        'close long: 平[%s]仓, 当前价 %s, 触发价 %s, 平仓价 %s, 张数 %s, 盈亏 %s',
-        this.mtp.longshort ? '多' : '空', this.mtp.currPrice, this.mtp.triggerPrice,
+        'close short: 平[%s]仓, 当前价 %s, 触发价 %s, 平仓价 %s, 张数 %s, 盈亏 %s',
+        this.mtp.longshort > 0 ? '多' : '空', this.mtp.currPrice, this.mtp.triggerPrice,
         this.mtp.closePrice, this.mtp.holdCont, this.mtp.pnlRatio,
       );
       this.subCont(-1, cont, price).catch(err => {
@@ -216,7 +216,7 @@ class MovingTrigger extends EventEmitter {
       return orderId;
     }
 
-    console.log('与当前持仓方向不一致.');
+    console.log('与当前持仓方向不一致. %s !== %s', this.mtp.longshort, longshort);
     return false;
   }
 
